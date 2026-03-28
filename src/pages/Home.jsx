@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import Map from '../components/Map'
 
-export default function Home({ setPage, user }) {
+export default function Home({ setPage, user, mapFocus, onMapFocusDone }) {
   const [reports, setReports] = useState([])
   const [filter, setFilter] = useState('all')
   const [showHeatmap, setShowHeatmap] = useState(true)
@@ -59,7 +59,7 @@ export default function Home({ setPage, user }) {
       <div className="container">
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+        <div className="home-hero">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
               <div style={{
@@ -70,7 +70,7 @@ export default function Home({ setPage, user }) {
                 Live — Thane, Maharashtra
               </span>
             </div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.5px' }}>
+            <h1 className="home-title">
               Road Damage Intelligence
             </h1>
             <p style={{ color: 'var(--text2)', fontSize: 13, marginTop: 4 }}>
@@ -78,7 +78,7 @@ export default function Home({ setPage, user }) {
             </p>
           </div>
           {user && (
-            <button className="btn btn-orange" onClick={() => setPage('submit')} style={{ marginTop: 4 }}>
+            <button className="btn btn-orange home-hero-cta" onClick={() => setPage('submit')}>
               + File Report
             </button>
           )}
@@ -111,7 +111,7 @@ export default function Home({ setPage, user }) {
         </div>
 
         {/* Controls */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="home-map-controls">
           {[
             { key: 'all', label: 'All' },
             { key: 'minor', label: 'Minor' },
@@ -127,7 +127,7 @@ export default function Home({ setPage, user }) {
               {f.label}
             </button>
           ))}
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div className="home-heatmap-toggle">
             <label style={{
               display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer',
               fontSize: 12, color: 'var(--text2)', textTransform: 'uppercase',
@@ -157,9 +157,8 @@ export default function Home({ setPage, user }) {
 
         {/* Map */}
         {loading ? (
-          <div style={{
-            height: 560, borderRadius: 16, background: 'var(--bg2)',
-            border: '1px solid var(--border)',
+          <div className="map-wrap map-loading-placeholder" style={{
+            background: 'var(--bg2)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             gap: 12, color: 'var(--text2)'
           }}>
@@ -171,7 +170,14 @@ export default function Home({ setPage, user }) {
             <span style={{ fontSize: 13 }}>Loading intelligence feed...</span>
           </div>
         ) : (
-          <Map reports={filtered} showHeatmap={showHeatmap} onUpvote={handleUpvote} votedIds={votedIds} />
+          <Map
+            reports={filtered}
+            showHeatmap={showHeatmap}
+            onUpvote={handleUpvote}
+            votedIds={votedIds}
+            focusTarget={mapFocus}
+            onFocusDone={onMapFocusDone}
+          />
         )}
 
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>

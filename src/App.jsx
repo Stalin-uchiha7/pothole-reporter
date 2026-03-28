@@ -3,10 +3,13 @@ import { supabase } from './lib/supabase'
 import Home from './pages/Home'
 import Submit from './pages/Submit'
 import Admin from './pages/Admin'
+import TopVoted from './pages/TopVoted'
 
 export default function App() {
   const [page, setPage] = useState('home')
   const [user, setUser] = useState(null)
+  const [navOpen, setNavOpen] = useState(false)
+  const [mapFocus, setMapFocus] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -17,6 +20,10 @@ export default function App() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    setNavOpen(false)
+  }, [page])
 
   const signIn = () => supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -33,10 +40,50 @@ export default function App() {
           <div className="logo" onClick={() => setPage('home')} style={{ cursor: 'pointer' }}>
             POTHOLE<span>REPORTER</span>
           </div>
-          <div className="nav-links">
-            <a onClick={() => setPage('home')}>Map</a>
-            {user && <a onClick={() => setPage('submit')}>Report</a>}
-            {user && <a onClick={() => setPage('admin')}>Dashboard</a>}
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-label={navOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={navOpen}
+            onClick={() => setNavOpen(o => !o)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          <div className={`nav-links ${navOpen ? 'nav-links--open' : ''}`}>
+            <a
+              aria-current={page === 'home' ? 'page' : undefined}
+              className={page === 'home' ? 'nav-active' : undefined}
+              onClick={() => setPage('home')}
+            >
+              Map
+            </a>
+            <a
+              aria-current={page === 'top' ? 'page' : undefined}
+              className={page === 'top' ? 'nav-active' : undefined}
+              onClick={() => setPage('top')}
+            >
+              Top voted
+            </a>
+            {user && (
+              <a
+                aria-current={page === 'submit' ? 'page' : undefined}
+                className={page === 'submit' ? 'nav-active' : undefined}
+                onClick={() => setPage('submit')}
+              >
+                Report
+              </a>
+            )}
+            {user && (
+              <a
+                aria-current={page === 'admin' ? 'page' : undefined}
+                className={page === 'admin' ? 'nav-active' : undefined}
+                onClick={() => setPage('admin')}
+              >
+                Dashboard
+              </a>
+            )}
             {user
               ? <button onClick={signOut}>Sign out</button>
               : <button className="btn-primary" onClick={signIn}>Connect</button>
@@ -45,7 +92,8 @@ export default function App() {
         </div>
       </nav>
 
-      {page === 'home'   && <Home setPage={setPage} user={user} />}
+      {page === 'home'   && <Home setPage={setPage} user={user} mapFocus={mapFocus} onMapFocusDone={() => setMapFocus(null)} />}
+      {page === 'top'    && <TopVoted user={user} setPage={setPage} onPickReport={setMapFocus} />}
       {page === 'submit' && <Submit user={user} setPage={setPage} />}
       {page === 'admin'  && <Admin user={user} />}
     </>

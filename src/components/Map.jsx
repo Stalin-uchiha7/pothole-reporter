@@ -28,6 +28,19 @@ function makeIcon(severity) {
   })
 }
 
+function MapFlyTo({ target, onDone }) {
+  const map = useMap()
+  const onDoneRef = useRef(onDone)
+  onDoneRef.current = onDone
+  useEffect(() => {
+    if (!target || target.lat == null || target.lng == null) return
+    map.setView([target.lat, target.lng], 16, { animate: true })
+    const id = setTimeout(() => onDoneRef.current?.(), 650)
+    return () => clearTimeout(id)
+  }, [target?.id, target?.lat, target?.lng, map])
+  return null
+}
+
 function HeatmapLayer({ reports }) {
   const map = useMap()
   const heatRef = useRef(null)
@@ -50,14 +63,15 @@ function HeatmapLayer({ reports }) {
   return null
 }
 
-export default function Map({ reports, showHeatmap = true, onUpvote, votedIds = [] }) {
+export default function Map({ reports, showHeatmap = true, onUpvote, votedIds = [], focusTarget, onFocusDone }) {
   const center = [19.2183, 72.9781] // Thane, Maharashtra
 
   return (
     <MapContainer center={center} zoom={13} className="map-wrap" scrollWheelZoom>
+      {focusTarget && <MapFlyTo target={focusTarget} onDone={onFocusDone} />}
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
       />
       {showHeatmap && <HeatmapLayer reports={reports} />}
       {reports.map(r => (
@@ -72,7 +86,7 @@ export default function Map({ reports, showHeatmap = true, onUpvote, votedIds = 
                 <span className={`badge ${r.severity}`}>{r.severity}</span>
                 <span className={`badge ${r.status}`}>{r.status.replace('_', ' ')}</span>
               </div>
-              {r.description && <p style={{ marginBottom: 8, color: '#444' }}>{r.description}</p>}
+              {r.description && <p style={{ marginBottom: 8, color: 'var(--text2)' }}>{r.description}</p>}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: '#888', fontSize: 12 }}>
                   {new Date(r.created_at).toLocaleDateString()}

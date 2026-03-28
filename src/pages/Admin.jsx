@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import StatusBadge from '../components/StatusBadge'
+import SelectMenu from '../components/SelectMenu'
 
 const ADMIN_EMAIL = 's76652@gmail.com'
 const STATUS_FLOW = ['pending', 'approved', 'in_progress', 'fixed']
+
+const STATUS_OPTIONS = STATUS_FLOW.map(s => ({ value: s, label: s.replace('_', ' ') }))
+const SEVERITY_OPTIONS = ['minor', 'moderate', 'severe'].map(s => ({ value: s, label: s }))
 
 export default function Admin({ user }) {
   const [reports, setReports] = useState([])
@@ -55,7 +59,7 @@ export default function Admin({ user }) {
   return (
     <div className="page">
       <div className="container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+        <div className="admin-header">
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: isAdmin ? '#ef4444' : '#10b981', boxShadow: `0 0 8px ${isAdmin ? '#ef4444' : '#10b981'}` }} />
@@ -70,7 +74,7 @@ export default function Admin({ user }) {
               {reports.length} total incident{reports.length !== 1 ? 's' : ''} on record
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <div className="admin-filters">
             {['all', 'pending', 'approved', 'in_progress', 'fixed'].map(f => (
               <button key={f} className={`filter-pill ${filter === f ? 'active' : ''}`}
                 onClick={() => setFilter(f)}>
@@ -113,25 +117,31 @@ export default function Admin({ user }) {
                       {new Date(r.created_at).toLocaleString()}
                     </span>
                   </div>
-                  <div className="actions">
+                  <div className="actions actions--dashboard">
                     {isAdmin ? (
                       <>
-                        <select value={r.status} onChange={e => updateStatus(r.id, e.target.value)}
-                          style={{ width: 'auto', padding: '5px 10px', fontSize: 12 }}>
-                          {STATUS_FLOW.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
-                        </select>
-                        <select value={r.severity} onChange={e => updateSeverity(r.id, e.target.value)}
-                          style={{ width: 'auto', padding: '5px 10px', fontSize: 12 }}>
-                          {['minor','moderate','severe'].map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
+                        <SelectMenu
+                          value={r.status}
+                          onChange={v => updateStatus(r.id, v)}
+                          options={STATUS_OPTIONS}
+                          className="select-menu--compact"
+                        />
+                        <SelectMenu
+                          value={r.severity}
+                          onChange={v => updateSeverity(r.id, v)}
+                          options={SEVERITY_OPTIONS}
+                          className="select-menu--compact"
+                        />
                         <button className="btn btn-red" style={{ padding: '5px 12px', fontSize: 12 }}
                           onClick={() => deleteReport(r.id)}>Delete</button>
                       </>
                     ) : (
-                      <select value={r.status} onChange={e => updateStatus(r.id, e.target.value)}
-                        style={{ width: 'auto', padding: '5px 10px', fontSize: 12 }}>
-                        {STATUS_FLOW.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
-                      </select>
+                      <SelectMenu
+                        value={r.status}
+                        onChange={v => updateStatus(r.id, v)}
+                        options={STATUS_OPTIONS}
+                        className="select-menu--compact"
+                      />
                     )}
                   </div>
                 </div>
