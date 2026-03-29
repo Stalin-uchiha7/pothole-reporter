@@ -44,6 +44,18 @@ export default function Submit({ user, setPage }) {
     )
   }
 
+  function cancelReport() {
+    if (preview) URL.revokeObjectURL(preview)
+    if (fileRef.current) fileRef.current.value = ''
+    setImage(null)
+    setPreview(null)
+    setLocation(null)
+    setDescription('')
+    setError('')
+    setLoading(false)
+    setStep(1)
+  }
+
   async function handleSubmit() {
     if (!image || !location) return
     setLoading(true)
@@ -78,11 +90,27 @@ export default function Submit({ user, setPage }) {
         <div style={{ maxWidth: 540, margin: '0 auto' }}>
 
           {/* Header */}
-          <div style={{ marginBottom: 28 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.4px' }}>File Incident Report</h2>
-            <p style={{ color: 'var(--text2)', fontSize: 13, marginTop: 4 }}>
-              Document road damage for community review
-            </p>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              gap: 12,
+              flexWrap: 'wrap',
+              marginBottom: 28,
+            }}
+          >
+            <div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.4px' }}>File Incident Report</h2>
+              <p style={{ color: 'var(--text2)', fontSize: 13, marginTop: 4 }}>
+                Document road damage for community review
+              </p>
+            </div>
+            {step < 4 && (
+              <button type="button" className="btn btn-gray" onClick={cancelReport} style={{ flexShrink: 0 }}>
+                Cancel
+              </button>
+            )}
           </div>
 
           {/* Step indicators */}

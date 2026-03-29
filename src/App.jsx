@@ -25,6 +25,10 @@ export default function App() {
     setNavOpen(false)
   }, [page])
 
+  useEffect(() => {
+    if (!user && page === 'top') setPage('home')
+  }, [user, page])
+
   const signIn = () => supabase.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.origin }
@@ -34,7 +38,6 @@ export default function App() {
 
   return (
     <>
-      <div className="hud-line" />
       <nav>
         <div className="inner">
           <div className="logo" onClick={() => setPage('home')} style={{ cursor: 'pointer' }}>
@@ -59,13 +62,15 @@ export default function App() {
             >
               Map
             </a>
-            <a
-              aria-current={page === 'top' ? 'page' : undefined}
-              className={page === 'top' ? 'nav-active' : undefined}
-              onClick={() => setPage('top')}
-            >
-              Top voted
-            </a>
+            {user && (
+              <a
+                aria-current={page === 'top' ? 'page' : undefined}
+                className={page === 'top' ? 'nav-active' : undefined}
+                onClick={() => setPage('top')}
+              >
+                Top voted
+              </a>
+            )}
             {user && (
               <a
                 aria-current={page === 'submit' ? 'page' : undefined}
@@ -93,7 +98,7 @@ export default function App() {
       </nav>
 
       {page === 'home'   && <Home setPage={setPage} user={user} mapFocus={mapFocus} onMapFocusDone={() => setMapFocus(null)} />}
-      {page === 'top'    && <TopVoted user={user} setPage={setPage} onPickReport={setMapFocus} />}
+      {page === 'top' && user && <TopVoted user={user} setPage={setPage} onPickReport={setMapFocus} />}
       {page === 'submit' && <Submit user={user} setPage={setPage} />}
       {page === 'admin'  && <Admin user={user} />}
     </>

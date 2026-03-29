@@ -694,23 +694,6 @@ label {
   color: var(--text3);
 }
 
-/* SCAN LINE EFFECT */
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-
-.hud-line {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  opacity: 0.15;
-  animation: scanline 8s linear infinite;
-  pointer-events: none;
-  z-index: 9999;
-}
-
 /* GLOW DIVIDER */
 .glow-divider {
   height: 1px;
